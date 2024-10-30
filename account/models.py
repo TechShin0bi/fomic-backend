@@ -6,9 +6,9 @@ from common.models import BaseModel  # Assuming you use your base model
 User = settings.AUTH_USER_MODEL  # Refers to your User model
 
 class Deposit(BaseModel):
-    code = models.CharField(max_length=50, unique=True)  # Code for the deposit
+    code = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateTimeField(default=timezone.now)
+    date = models.DateTimeField()
     status = models.CharField(
         max_length=10,
         choices=[('pending', 'Pending'), ('completed', 'Completed')],
@@ -18,7 +18,7 @@ class Deposit(BaseModel):
     validated_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='validated_deposits',
-        limit_choices_to={'isAdmin': True}  # Only admins can validate
+        limit_choices_to={'is_staff': True}  # Only admins can validate
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposits')
 
@@ -27,13 +27,18 @@ class Deposit(BaseModel):
 
 
 class Withdrawal(BaseModel):
+    status = models.CharField(
+        max_length=10,
+        choices=[('pending', 'Pending'), ('completed', 'Completed')],
+        default='pending'
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=timezone.now)
     is_validated = models.BooleanField(default=False)  # Validation flag
     validated_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='validated_withdrawals',
-        limit_choices_to={'isAdmin': True}  # Only admins can validate
+        limit_choices_to={'is_admin': True}  # Only admins can validate
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawals')
 

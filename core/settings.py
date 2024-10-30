@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    "corsheaders",
     'rest_framework',
     'knox',
     'authentication',
@@ -53,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -134,5 +139,17 @@ REST_FRAMEWORK = {
         'knox.auth.TokenAuthentication',
     ),
 }
+# Knox Configuration - Set token lifetime to 24 hours
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(days=60),  # Set token expiration to 24 hours
+    'AUTO_REFRESH': True,  # Optional: refresh token on every authenticated request
+    'USER_SERIALIZER': 'authentication.serializers.UserSerializer',  # Optional: custom user serializer
 
-AUTH_USER_MODEL = 'auth.User'
+}
+
+AUTH_USER_MODEL = 'authentication.User'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+]

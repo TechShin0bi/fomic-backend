@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils import timezone
 from . managers import AppManager
+import uuid
 
 class BaseModel(models.Model):
     # Soft delete fields
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     is_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
 

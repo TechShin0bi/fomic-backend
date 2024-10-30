@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.utils.timezone import now
+from django.conf import settings
 
 class PlanCategory(models.TextChoices):
     CATEGORY_1 = '1', 'Category 1'
@@ -23,13 +22,22 @@ class Plan(models.Model):
         return f"{self.name} ({self.get_category_display()})"
 
 class UserPlan(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_plans')
-    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, related_name='user_plans')
-    is_active = models.BooleanField(default=True)  # Track if this is the current active plan
-    last_process = models.DateTimeField(default=now)  # Store the last process date
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use AUTH_USER_MODEL to point to your custom User model
+        on_delete=models.CASCADE,
+        related_name='user_plans'
+    )
+    plan = models.ForeignKey('Plan', on_delete=models.CASCADE)  # Assuming a Plan model exists
+    last_process = models.DateTimeField(auto_now=True)  # Track last processing date
+
+    is_validated = models.BooleanField(default=False)  # Track validation status
+    validated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Admin who validated the plan
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='validated_plans'
+    )
 
     def __str__(self):
-        return f"{self.user.username}'s Plan: {self.plan.name if self.plan else 'No Plan'}"
-
-    class Meta:
-        unique_together = ('user', 'is_active')  # Ensure only one active plan per user
+        return f"{self.user.name}'s {self.plan.name}"
