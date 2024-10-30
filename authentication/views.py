@@ -23,9 +23,9 @@ class LoginView(generics.GenericAPIView):
 
         # Create Knox token
         _, token = AuthToken.objects.create(user)
-
+        user = UserSerializer(user).data
         # Return user data and token
         return Response({
-            'user': UserSerializer(user).data,
+            'user': user,
             'token': token
         })

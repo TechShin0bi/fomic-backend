@@ -3,9 +3,11 @@ from django.db import models
 from . manager import UserManager
 from common.models import BaseModel
 from django.utils import timezone
+import uuid
 from django.utils.translation import gettext_lazy as _
 
 class User(AbstractBaseUser, PermissionsMixin,BaseModel):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     first_name = models.CharField(_("first name"), max_length=150, blank=True)
     last_name = models.CharField(_("last name"), max_length=150, blank=True)
     email = models.EmailField(_("email address"), blank=True,unique=True)

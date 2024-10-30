@@ -143,7 +143,7 @@ REST_FRAMEWORK = {
 REST_KNOX = {
     'TOKEN_TTL': timedelta(days=60),  # Set token expiration to 24 hours
     'AUTO_REFRESH': True,  # Optional: refresh token on every authenticated request
-    'USER_SERIALIZER': 'authentication.serializers.UserSerializer',  # Optional: custom user serializer
+    # 'USER_SERIALIZER': 'authentication.serializers.UserSerializer',  # Optional: custom user serializer
 
 }
 
