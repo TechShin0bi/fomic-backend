@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-i%z+5vjq!bb+c(9&pz+@ngs)g54pg)wo!fyb$l=xdo)vf^0p9=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '.vercel.app',
+]
 
 
 # Application definition
@@ -152,4 +154,5 @@ AUTH_USER_MODEL = 'authentication.User'
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
+    "https://fomic.vercel.app"
 ]
