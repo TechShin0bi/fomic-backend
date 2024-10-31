@@ -32,6 +32,13 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True,default="/assets/blue profile.png")
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    referred_by = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='referrals'
+    )
 
     objects = UserManager()
 
@@ -41,3 +48,14 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
 
     def __str__(self):
         return self.email
+    
+class PasswordResetTokenCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')
+    token = models.CharField(max_length=32)
+    code = models.CharField(max_length=32)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def is_valid(self):
+        # Check if the token has expired
+        return timezone.now() < self.expires_at

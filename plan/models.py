@@ -20,7 +20,18 @@ class Plan(BaseModel):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} ({self.get_category_display()})"
+        return f"{self.user.first_name}'s {self.plan.name}"
+    
+    
+
+    def calculate_referral_bonus(self):
+        # Calculate 20% of the user's daily revenue as a referral bonus
+        bonus = self.plan.daily_revenue * 0.2
+        referrer = self.user.referred_by
+
+        if referrer:
+            referrer.balance += bonus  # Assuming `balance` is a DecimalField in User
+            referrer.save()
 
 class UserPlan(BaseModel):
     user = models.ForeignKey(

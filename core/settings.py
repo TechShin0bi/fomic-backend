@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,8 +29,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '.vercel.app',
+    '127.0.0.1'
 ]
 
+APP_NAME = "Fomic Winner"
 
 # Application definition
 
@@ -67,7 +69,8 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'authentication/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,6 +110,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'fomic',       # Database name
+#         'USER': 'pires',       # Database username
+#         'PASSWORD': 'death the kid 2',  # Database password
+#         'HOST': 'localhost',          # Database host, often 'localhost'
+#         'PORT': '5432',               # Default PostgreSQL port
+#     }
+# }
 
 
 # Password validation
@@ -171,3 +184,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://fomic.vercel.app"
 ]
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'fomicwinner@gmail.com'
+# EMAIL_HOST_PASSWORD = 'oclm cjup pows btpv'
+# MAIL_FROM_NAME="${APP_NAME}"
+
+# Looking to send emails in production? Check out our Email API/SMTP product!
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = 'fa4271ab962c32'
+EMAIL_HOST_PASSWORD = '22bd95a0a5a7b6'
+EMAIL_PORT = '2525'

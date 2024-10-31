@@ -112,6 +112,9 @@ class UpdateUserPlanView(generics.GenericAPIView):
             # Update last_process date to today
             user_plan.last_process = now()
             user_plan.save()
+            
+            # Calculate referral bonus
+            user_plan.calculate_referral_bonus()
             return Response(
                 {
                     "message": "User plan updated successfully.",
