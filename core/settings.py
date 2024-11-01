@@ -96,30 +96,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'verceldb',
-#         'USER': 'default',
-#         'PASSWORD': 'XKqja8Uiz7cm',
-#         'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#         },
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fomic',       # Database name
-        'USER': 'pires',       # Database username
-        'PASSWORD': 'death the kid 2',  # Database password
-        'HOST': 'localhost',          # Database host, often 'localhost'
-        'PORT': '5432',               # Default PostgreSQL port
+        'NAME': 'verceldb',
+        'USER': 'default',
+        'PASSWORD': 'XKqja8Uiz7cm',
+        'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'fomic',       # Database name
+#         'USER': 'pires',       # Database username
+#         'PASSWORD': 'death the kid 2',  # Database password
+#         'HOST': 'localhost',          # Database host, often 'localhost'
+#         'PORT': '5432',               # Default PostgreSQL port
+#     }
+# }
 
 
 # Password validation
@@ -185,16 +185,16 @@ CORS_ALLOWED_ORIGINS = [
     "https://fomic.vercel.app"
 ]
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'fomicwinner@gmail.com'
-# EMAIL_HOST_PASSWORD = 'oclm cjup pows btpv'
-# MAIL_FROM_NAME="${APP_NAME}"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'fomicwinner@gmail.com'
+EMAIL_HOST_PASSWORD = 'oclm cjup pows btpv'
+MAIL_FROM_NAME="${APP_NAME}"
 
 # Looking to send emails in production? Check out our Email API/SMTP product!
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'fa4271ab962c32'
-EMAIL_HOST_PASSWORD = '22bd95a0a5a7b6'
-EMAIL_PORT = '2525'
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = 'fa4271ab962c32'
+# EMAIL_HOST_PASSWORD = '22bd95a0a5a7b6'
+# EMAIL_PORT = '2525'
