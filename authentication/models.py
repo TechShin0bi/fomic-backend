@@ -5,6 +5,7 @@ from common.models import BaseModel
 from django.utils import timezone
 import uuid
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
 
 class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
@@ -32,13 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True,default="/assets/blue profile.png")
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    referred_by = models.ForeignKey(
-        'self', 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='referrals'
-    )
+    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,related_name='referrals')
 
     objects = UserManager()
 
@@ -48,6 +43,42 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
 
     def __str__(self):
         return self.email
+    
+    def update_balance_and_referred_users(self):
+        """
+        Updates the balance of the user based on their active plan, and then
+        updates the plans of each referred user.
+        """
+        try:
+            # Retrieve the active plan of the user
+            user_plan = self.objects.get(user=self, is_active=True)
+            plan = user_plan.plan  # Fetch the linked plan
+
+            # Calculate days passed since the last process
+            days_passed = (now().date() - user_plan.last_process.date()).days
+
+            if days_passed > 0:
+                # Calculate accumulated amount
+                daily_revenue = plan.daily_revenue
+                accumulated_amount = daily_revenue * days_passed
+
+                # Update user balance
+                self.balance += accumulated_amount
+                self.save()
+
+                # Update last_process date to today
+                user_plan.last_process = now()
+                user_plan.save()
+
+                # Calculate referral bonus if applicable
+                user_plan.calculate_referral_bonus()
+
+            # Update referred users
+            for referred_user in self.referrals.all():
+                referred_user.update_balance_and_referred_users()
+
+        except self.DoesNotExist:
+            raise ValueError("Active user plan not found.")
     
 class PasswordResetTokenCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')

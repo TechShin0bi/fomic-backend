@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from knox.models import AuthToken
 from . models import PasswordResetTokenCode
-from .serializers import UserSerializer
+from .serializers import *
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from django.template.loader import render_to_string
@@ -11,10 +11,10 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-from django.urls import reverse
 from django.utils.crypto import get_random_string
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
+from common.paginations import ReferralPagination
 
 User = get_user_model()
 
@@ -154,3 +154,12 @@ class PasswordResetView(APIView):
 
         except PasswordResetTokenCode.DoesNotExist:
             return Response({"error": "Code invalide."}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+class ReferralListView(generics.ListAPIView):
+    serializer_class = GetUserSerializer
+    pagination_class = ReferralPagination
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return User.objects.filter(referred_by=self.request.user).order_by("-date_joined")

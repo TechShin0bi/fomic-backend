@@ -1,14 +1,12 @@
-from datetime import timedelta
 from rest_framework import generics, permissions,status
 from .models import Plan,UserPlan
 from rest_framework.permissions import IsAuthenticated
 from .serializers import PlanSerializer,UserPlanSerializer
 from rest_framework.response import Response
-from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 from .models import UserPlan
 from rest_framework.views import APIView
-from django.db.models import F, ExpressionWrapper, DateTimeField
-
+User = get_user_model()
 
 class PlanListCreateView(generics.ListCreateAPIView):
     queryset = Plan.objects.all()
@@ -84,50 +82,33 @@ class UserActivePlanView(APIView):
 class UpdateUserPlanView(generics.GenericAPIView):
     """
     View to calculate and update the user's balance based on the daily revenue and days passed.
+    This also updates the plans of any referred users.
     """
     def get(self, request, user_id):
         try:
-            # Retrieve the active plan of the user
-            user_plan = UserPlan.objects.get(user__id=user_id, is_active=True)
-            plan = user_plan.plan  # Fetch the linked plan
+            # Retrieve the user instance
+            user = User.objects.get(id=user_id)
 
-            # Calculate the number of days since the last process
-            days_passed = (now().date() - user_plan.last_process.date()).days
-            user = user_plan.user
+            # Call the method to update balance and referred users
+            user.update_balance_and_referred_users()
 
-            if days_passed <= 0:
-                return Response(
-                    {"message": "No days passed since the last process.", "new_balance": user.balance,},
-                    status=status.HTTP_200_OK,
-                )
-
-            # Calculate the accumulated amount
-            daily_revenue = plan.daily_revenue
-            accumulated_amount = daily_revenue * days_passed
-
-            # Update user's balance
-            user.balance += accumulated_amount  # Assuming `balance` field exists on User model
-            user.save()
-
-            # Update last_process date to today
-            user_plan.last_process = now()
-            user_plan.save()
-            
-            # Calculate referral bonus
-            user_plan.calculate_referral_bonus()
             return Response(
                 {
-                    "message": "User plan updated successfully.",
-                    "days_passed": days_passed,
-                    "accumulated_amount": accumulated_amount,
+                    "message": "User and referred users' plans updated successfully.",
                     "new_balance": user.balance,
                 },
                 status=status.HTTP_200_OK,
             )
 
-        except UserPlan.DoesNotExist:
+        except User.DoesNotExist:
             return Response(
-                {"error": "Active user plan not found."},
+                {"error": "User not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
