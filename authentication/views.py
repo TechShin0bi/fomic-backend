@@ -14,7 +14,11 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
-from common.paginations import ReferralPagination
+from common.paginations import ReferralPagination,StandardResultsPagination
+from common.filters import UserFilter 
+from rest_framework import generics, filters as rest_filters
+from django_filters.rest_framework import DjangoFilterBackend
+import socket
 
 User = get_user_model()
 
@@ -30,7 +34,6 @@ class RegisterView(generics.CreateAPIView):
 
         # Check for a referral code
         referrer_id = request.data.get('referral_code')
-        print(referrer_id)
         if referrer_id:
             try:
                 referrer = User.objects.get(id=referrer_id)
@@ -46,23 +49,32 @@ class LoginView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]  # Allow access to any user
 
     def post(self, request, *args, **kwargs):
-        # Extract email and password from request data
+        # Extract email, password, and is_admin from request data
         email = request.data.get('email')
         password = request.data.get('password')
+        is_admin_requested = request.data.get('is_admin', False)  # Get is_admin if provided
+        
+        try:
+            # Authenticate the user
+            user = authenticate(request, email=email, password=password)
+            if not user:
+                return Response({"error": "Invalid credentials"}, status=400)
 
-        # Authenticate the user
-        user = authenticate(request, email=email, password=password)
-        if not user:
-            return Response({"error": "Invalid credentials"}, status=400)
+            # Check if is_admin was requested and if it matches the user’s is_admin status
+            if is_admin_requested is not None and user.is_admin != is_admin_requested:
+                return Response({"error": "Authentification status mismatch"}, status=400)
 
-        # Create Knox token
-        _, token = AuthToken.objects.create(user)
-        user = UserSerializer(user).data
-        # Return user data and token
-        return Response({
-            'user': user,
-            'token': token
-        })
+            # Create Knox token
+            _, token = AuthToken.objects.create(user)
+            user_data = UserSerializer(user).data
+            
+            # Return user data and token
+            return Response({
+                'user': user_data,
+                'token': token
+            })
+        except (socket.error, BrokenPipeError):
+            print(socket.error)
 
 class PasswordResetRequestView(APIView):
     def post(self, request):
@@ -163,3 +175,12 @@ class ReferralListView(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(referred_by=self.request.user).order_by("-date_joined")
+    
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    pagination_class = StandardResultsPagination
+    filter_backends = [DjangoFilterBackend, rest_filters.SearchFilter]  # Use DjangoFilterBackend explicitly
+    filterset_class = UserFilter
+    search_fields = ['first_name', 'last_name', 'email']  # Fields to search by

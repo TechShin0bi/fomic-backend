@@ -10,5 +10,6 @@ urlpatterns = [
     path('password-reset/request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset/code-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
-     path('referrals/', ReferralListView.as_view(), name='referral-list'),
+    path('referrals/', ReferralListView.as_view(), name='referral-list'),
+    path('users/', UserListView.as_view(), name='user-list'),
 ]

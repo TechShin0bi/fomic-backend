@@ -29,7 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '.vercel.app',
-    '127.0.0.1'
+    '127.0.0.1',
+    "localhost"
 ]
 
 APP_NAME = "Fomic Winner"
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'django_filters',
+        
     "corsheaders",
     'rest_framework',
     'knox',
@@ -96,30 +99,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'verceldb',
-#         'USER': 'default',
-#         'PASSWORD': 'XKqja8Uiz7cm',
-#         'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#         },
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fomic',       # Database name
-        'USER': 'pires',       # Database username
-        'PASSWORD': 'death the kid 2',  # Database password
-        'HOST': 'localhost',          # Database host, often 'localhost'
-        'PORT': '5432',               # Default PostgreSQL port
+        'NAME': 'verceldb',
+        'USER': 'default',
+        'PASSWORD': 'XKqja8Uiz7cm',
+        'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'fomic',       # Database name
+#         'USER': 'pires',       # Database username
+#         'PASSWORD': 'death the kid 2',  # Database password
+#         'HOST': 'localhost',          # Database host, often 'localhost'
+#         'PORT': '5432',               # Default PostgreSQL port
+#     }
+# }
 
 
 # Password validation
