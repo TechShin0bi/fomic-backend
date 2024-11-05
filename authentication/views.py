@@ -27,7 +27,6 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def post(self, request):
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()  # Save and get the user instance
@@ -49,6 +48,7 @@ class LoginView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]  # Allow access to any user
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         # Extract email, password, and is_admin from request data
         email = request.data.get('email')
         password = request.data.get('password')
