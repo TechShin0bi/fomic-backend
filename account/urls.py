@@ -11,8 +11,9 @@ urlpatterns = [
     path('deposits/<uuid:pk>/validate/', DepositViewSet.as_view({'post': 'validate_deposit'}), name='validate-deposit'),
     path('withdrawals/<uuid:pk>/validate/', WithdrawalViewSet.as_view({'post': 'validate_withdrawal'}), name='validate-withdrawal'),
     
-    path('deposits/<uuid:pk>/validate/', ValidateDepositView.as_view(), name='validate-deposit'),
-    path('withdrawals/<uuid:pk>/validate/', ValidateWithdrawalView.as_view(), name='validate-withdrawal'),
+    path('validate-deposit/<uuid:pk>/', ValidateDepositView.as_view(), name='validate-deposit'),
+    path('validate-withdrawal/<uuid:pk>/', ValidateWithdrawalView.as_view(), name='validate-withdrawal'),
+
     path('deposits-list/', DepositListView.as_view(), name='deposit-list'),
     path('withdrawal-list/', WithdrawalListView.as_view(), name='withdrawal-list'),
 ]

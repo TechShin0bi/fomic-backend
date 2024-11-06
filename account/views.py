@@ -6,6 +6,7 @@ from .models import Deposit, Withdrawal
 from .serializers import DepositSerializer, WithdrawalSerializer
 from rest_framework.decorators import action
 from rest_framework.views import APIView
+from rest_framework.generics import UpdateAPIView
 from rest_framework import generics, filters as rest_filters
 from django_filters import rest_framework as filters
 from common.filters import DepositFilter , WithdrawalFilter
@@ -81,16 +82,18 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
 
 
 
-class ValidateDepositView(APIView):
+class ValidateDepositView(UpdateAPIView):
     """
     View to validate a deposit.
     Only admins or staff members are allowed to validate deposits.
     """
     permission_classes = [IsAuthenticated]
-
+    queryset = Deposit.objects.all()
+    serializer_class = DepositSerializer
+    
     def put(self, request, pk, *args, **kwargs):
         # Check if the user is an admin or staff member
-        if not request.user.is_staff:
+        if not request.user.is_admin:
             return Response({"error": "You do not have permission to validate deposits."}, status=status.HTTP_403_FORBIDDEN)
 
         # Get the deposit object or return a 404 if not found
@@ -106,15 +109,17 @@ class ValidateDepositView(APIView):
         deposit.status = 'completed'
         deposit.save()
 
-        return Response({"message": "Deposit successfully validated.", "deposit": DepositSerializer(deposit).data})
+        return Response(DepositSerializer(deposit).data)
 
 
-class ValidateWithdrawalView(APIView):
+class ValidateWithdrawalView(UpdateAPIView):
     """
     View to validate a withdrawal.
     Only admins or staff members are allowed to validate withdrawals.
     """
     permission_classes = [IsAuthenticated]
+    queryset = Withdrawal.objects.all()
+    serializer_class = WithdrawalSerializer
 
     def put(self, request, pk, *args, **kwargs):
         # Check if the user is an admin or staff member
@@ -134,11 +139,11 @@ class ValidateWithdrawalView(APIView):
         withdrawal.status = 'completed'
         withdrawal.save()
 
-        return Response({"message": "Withdrawal successfully validated.", "withdrawal": WithdrawalSerializer(withdrawal).data})
+        return Response(WithdrawalSerializer(withdrawal).data)
     
     
 class DepositListView(generics.ListAPIView):
-    queryset = Deposit.objects.all().order_by('-date')
+    queryset = Deposit.objects.all().order_by('-created_at')
     serializer_class = DepositSerializer
     pagination_class = StandardResultsPagination
     filter_backends = [filters.DjangoFilterBackend, rest_filters.SearchFilter]
@@ -146,7 +151,7 @@ class DepositListView(generics.ListAPIView):
     search_fields = ['code']  # Search by deposit code
 
 class WithdrawalListView(generics.ListAPIView):
-    queryset = Withdrawal.objects.all().order_by('-date')
+    queryset = Withdrawal.objects.all().order_by('-created_at')
     serializer_class = WithdrawalSerializer
     pagination_class = StandardResultsPagination
     filter_backends = [filters.DjangoFilterBackend, rest_filters.SearchFilter]
