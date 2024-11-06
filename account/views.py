@@ -107,6 +107,9 @@ class ValidateDepositView(UpdateAPIView):
         deposit.is_validated = True
         deposit.validated_by = request.user
         deposit.status = 'completed'
+        user = deposit.user
+        user.balance += deposit.amount
+        user.save()
         deposit.save()
 
         return Response(DepositSerializer(deposit).data)
@@ -137,6 +140,9 @@ class ValidateWithdrawalView(UpdateAPIView):
         withdrawal.is_validated = True
         withdrawal.validated_by = request.user
         withdrawal.status = 'completed'
+        user = withdrawal.user
+        user.balance -= withdrawal.amount
+        user.save()
         withdrawal.save()
 
         return Response(WithdrawalSerializer(withdrawal).data)
