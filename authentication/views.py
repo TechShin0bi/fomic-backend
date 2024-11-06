@@ -52,7 +52,7 @@ class LoginView(generics.GenericAPIView):
         # Extract email, password, and is_admin from request data
         email = request.data.get('email')
         password = request.data.get('password')
-        is_admin_requested = request.data.get('is_admin', False)  # Get is_admin if provided
+        # is_admin_requested = request.data.get('is_admin', False)  # Get is_admin if provided
         
         try:
             # Authenticate the user
@@ -61,8 +61,8 @@ class LoginView(generics.GenericAPIView):
                 return Response({"error": "Invalid credentials"}, status=400)
 
             # Check if is_admin was requested and if it matches the user’s is_admin status
-            if is_admin_requested is not None and user.is_admin != is_admin_requested:
-                return Response({"error": "Authentification status mismatch"}, status=400)
+            # if user.is_admin != is_admin_requested:
+            #     return Response({"error": "Authentification status mismatch"}, status=400)
 
             # Create Knox token
             _, token = AuthToken.objects.create(user)

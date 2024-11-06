@@ -107,10 +107,10 @@ DATABASES = {
         'PASSWORD': 'XKqja8Uiz7cm',
         'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
         'PORT': '5432',
-        # 'OPTIONS': {
-        #     'sslmode': 'require',
+        'OPTIONS': {
+            'sslmode': 'require',
         #     'options': '-c statement_timeout=5000 -c idle_in_transaction_session_timeout=10000'
-        # },
+        },
     }
 }
 
@@ -185,7 +185,9 @@ AUTH_USER_MODEL = 'authentication.User'
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://fomic.vercel.app"
 ]
 
