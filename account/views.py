@@ -53,10 +53,32 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        data['user'] = request.user.id
+        user = request.user
+
+        # Check if the requested withdrawal amount is available in the user's balance
+        amount = data.get('amount')
+        if amount is None:
+            return Response({"error": "Amount is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            amount = float(amount)
+        except ValueError:
+            return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check for sufficient balance
+        if user.balance < amount:
+            return Response({"error": "Insufficient balance to create this withdrawal."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Proceed with withdrawal creation if balance is sufficient
+        data['user'] = user.id
         serializer = self.get_serializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        withdrawal = serializer.save()
+
+        # Deduct the amount from the user's balance
+        user.balance -= amount
+        user.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     
@@ -136,11 +158,17 @@ class ValidateWithdrawalView(UpdateAPIView):
         if withdrawal.is_validated:
             return Response({"error": "This withdrawal has already been validated."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Check if user has enough balance
+        user = withdrawal.user
+        if user.balance < withdrawal.amount:
+            return Response({"error": "Insufficient balance to complete this withdrawal."}, status=status.HTTP_400_BAD_REQUEST)
+
         # Validate the withdrawal
         withdrawal.is_validated = True
         withdrawal.validated_by = request.user
         withdrawal.status = 'completed'
-        user = withdrawal.user
+
+        # Deduct the amount from user's balance
         user.balance -= withdrawal.amount
         user.save()
         withdrawal.save()
