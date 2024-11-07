@@ -27,6 +27,7 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def post(self, request):
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()  # Save and get the user instance

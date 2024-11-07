@@ -32,7 +32,8 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     image = models.ImageField(upload_to='profile_images/', null=True, blank=True,default="/assets/blue profile.png")
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    contact = models.CharField(max_length=15)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,related_name='referrals')
 
     objects = UserManager()
