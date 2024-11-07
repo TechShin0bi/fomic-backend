@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from .models import Deposit, Withdrawal
-from .serializers import DepositSerializer, WithdrawalSerializer
+from .serializers import *
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.generics import UpdateAPIView
@@ -178,7 +178,7 @@ class ValidateWithdrawalView(UpdateAPIView):
     
 class DepositListView(generics.ListAPIView):
     queryset = Deposit.objects.all().order_by('-created_at')
-    serializer_class = DepositSerializer
+    serializer_class = GetDepositSerializer
     pagination_class = StandardResultsPagination
     filter_backends = [filters.DjangoFilterBackend, rest_filters.SearchFilter]
     filterset_class = DepositFilter
@@ -186,7 +186,7 @@ class DepositListView(generics.ListAPIView):
 
 class WithdrawalListView(generics.ListAPIView):
     queryset = Withdrawal.objects.all().order_by('-created_at')
-    serializer_class = WithdrawalSerializer
+    serializer_class = GetWithdrawalSerializer
     pagination_class = StandardResultsPagination
     filter_backends = [filters.DjangoFilterBackend, rest_filters.SearchFilter]
     filterset_class = WithdrawalFilter
