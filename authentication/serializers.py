@@ -16,6 +16,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class GetUserSerializer(serializers.ModelSerializer):
+    from account.serializers import DepositSerializer , WithdrawalSerializer
+    deposits = DepositSerializer(many=True,source="validated_deposits")
+    withdrawals = WithdrawalSerializer(many=True,source="validated_withdrawals")
     class Meta:
         model = User
         exclude = ['password']

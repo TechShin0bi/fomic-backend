@@ -169,7 +169,7 @@ class PasswordResetView(APIView):
         
         
 class ReferralListView(generics.ListAPIView):
-    serializer_class = GetUserSerializer
+    serializer_class = UserSerializer
     pagination_class = ReferralPagination
     permission_classes = [permissions.IsAuthenticated]
 
@@ -179,8 +179,8 @@ class ReferralListView(generics.ListAPIView):
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+    serializer_class = GetUserSerializer
     pagination_class = StandardResultsPagination
     filter_backends = [DjangoFilterBackend, rest_filters.SearchFilter]  # Use DjangoFilterBackend explicitly
     filterset_class = UserFilter
-    search_fields = ['first_name', 'last_name', 'email']  # Fields to search by
+    search_fields = ['first_name', 'last_name', 'email']

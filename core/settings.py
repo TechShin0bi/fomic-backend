@@ -108,7 +108,7 @@ DATABASES = {
         'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
         'PORT': '5432',
         'OPTIONS': {
-            'sslmode': 'require',
+            # 'sslmode': 'require',
         #     'options': '-c statement_timeout=5000 -c idle_in_transaction_session_timeout=10000'
         },
     }
