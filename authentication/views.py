@@ -183,4 +183,4 @@ class UserListView(generics.ListAPIView):
     pagination_class = StandardResultsPagination
     filter_backends = [DjangoFilterBackend, rest_filters.SearchFilter]  # Use DjangoFilterBackend explicitly
     filterset_class = UserFilter
-    search_fields = ['first_name', 'last_name', 'email','i_admin']  # Fields to search by
+    search_fields = ['first_name', 'last_name', 'email','is_admin']  # Fields to search by
