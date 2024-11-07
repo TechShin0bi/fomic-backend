@@ -60,10 +60,10 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
         if amount is None:
             return Response({"error": "Amount is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            amount = float(amount)
-        except ValueError:
-            return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     amount = float(amount)
+        # except ValueError:
+        #     return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check for sufficient balance
         if user.balance < amount:
