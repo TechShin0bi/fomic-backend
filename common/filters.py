@@ -27,7 +27,8 @@ class UserFilter(filters.FilterSet):
     is_active = filters.BooleanFilter(field_name="is_active")
     date_joined_min = filters.DateFilter(field_name="date_joined", lookup_expr='gte')
     date_joined_max = filters.DateFilter(field_name="date_joined", lookup_expr='lte')
+    is_admin = django_filters.BooleanFilter(field_name='is_admin')
 
     class Meta:
         model = User  # Ensure `model` is correctly pointing to the User model
-        fields = ['is_active', 'date_joined_min', 'date_joined_max']
+        fields = ['is_active', 'date_joined_min', 'date_joined_max','is_admin']
