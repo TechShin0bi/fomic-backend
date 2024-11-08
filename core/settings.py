@@ -205,3 +205,65 @@ MAIL_FROM_NAME="${APP_NAME}"
 # EMAIL_HOST_USER = 'fa4271ab962c32'
 # EMAIL_HOST_PASSWORD = '22bd95a0a5a7b6'
 # EMAIL_PORT = '2525'
+
+
+# Define the path where log files will be stored
+LOG_DIR = Path(BASE_DIR) / 'logs'
+LOG_DIR.mkdir(exist_ok=True)  # Create the log directory if it doesn't exist
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # Keeps the default loggers
+
+    'formatters': {
+        'standard': {
+            'format': '{asctime} [{levelname}] {name} - {message}',
+            'style': '{',
+        },
+        'detailed': {
+            'format': '{asctime} [{levelname}] {name} [{pathname}:{lineno}] - {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        # Console handler for debugging
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        
+        # File handler for general info logs
+        'info_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'info.log',
+            'formatter': 'standard',
+        },
+        
+        # File handler for errors
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'error.log',
+            'formatter': 'detailed',
+        },
+    },
+
+    'loggers': {
+        # Default logger for the Django app
+        'django': {
+            'handlers': ['console', 'info_file', 'error_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        
+        # Custom logger for your application
+        'myapp': {
+            'handlers': ['console', 'info_file', 'error_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
