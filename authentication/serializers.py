@@ -17,10 +17,21 @@ class UserSerializer(serializers.ModelSerializer):
 
 class GetUserSerializer(serializers.ModelSerializer):
     from account.serializers import DepositSerializer , WithdrawalSerializer
-    deposits = DepositSerializer(many=True,source="validated_deposits")
-    withdrawals = WithdrawalSerializer(many=True,source="validated_withdrawals")
+    from plan . serializers import PlanSerializer
+    DEPOSITSERIALIZER = DepositSerializer
+    WITHDRAWALSERIALIZER = WithdrawalSerializer
+    deposits = DEPOSITSERIALIZER(many=True,source="validated_deposits")
+    withdrawals = WITHDRAWALSERIALIZER(many=True,source="validated_withdrawals")
+    plan = PlanSerializer()
     class Meta:
         model = User
         exclude = ['password']
+        
+    def get_deposits(self, obj): 
+        deposits = obj.validated_deposits.order_by('-created_at')[:2]
+        return self.DEPOSITSERIALIZER(deposits, many=True).data
 
+    def get_withdrawals(self, obj):
+        withdrawals = obj.validated_withdrawals.order_by('-created_at')[:2]
+        return self.WITHDRAWALSERIALIZER(withdrawals, many=True).data
 

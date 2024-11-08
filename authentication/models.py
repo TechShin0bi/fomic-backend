@@ -6,6 +6,9 @@ from django.utils import timezone
 import uuid
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
+from decimal import Decimal
+
+
 
 class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
@@ -35,7 +38,9 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     contact = models.CharField(max_length=15)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,related_name='referrals')
-
+    plan = models.ForeignKey("plan.Plan",null=True,blank=True,on_delete=models.RESTRICT)
+    last_balance_processed = models.DateTimeField(blank=True , null=True)
+    processed_refereal = models.DateTimeField(blank=True , null=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -47,39 +52,47 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
     
     def update_balance_and_referred_users(self):
         """
-        Updates the balance of the user based on their active plan, and then
-        updates the plans of each referred user.
+        Updates the balance of a user based on the daily revenue of their active plan. 
+        Calculates the number of days since the last balance update and applies the accumulated revenue.
+        Recursively updates the balance for any referred users.
+        
+        Parameters:
+        - user (User): The user instance to update.
         """
-        try:
-            # Retrieve the active plan of the user
-            user_plan = self.objects.get(user=self, is_active=True)
-            plan = user_plan.plan  # Fetch the linked plan
-
-            # Calculate days passed since the last process
-            days_passed = (now().date() - user_plan.last_process.date()).days
+        # Ensure the user has an active plan
+        if not self.plan:
+            # Calculate the days passed since the last balance update
+            last_processed_date = self.last_balance_processed.date() if self.last_balance_processed else now().date()
+            days_passed = (now().date() - last_processed_date).days
 
             if days_passed > 0:
-                # Calculate accumulated amount
-                daily_revenue = plan.daily_revenue
-                accumulated_amount = daily_revenue * days_passed
-
-                # Update user balance
+                # Calculate the total accumulated amount based on daily revenue and days passed
+                accumulated_amount = self.plan.daily_revenue * Decimal(days_passed)
+                
+                # Update the user's balance and the last balance processed date
                 self.balance += accumulated_amount
+                self.last_balance_processed = now()  # Set last processed time to current time
                 self.save()
-
-                # Update last_process date to today
-                user_plan.last_process = now()
-                user_plan.save()
-
-                # Calculate referral bonus if applicable
-                user_plan.calculate_referral_bonus()
-
-            # Update referred users
+            # Recursively update the balance for each referred user
             for referred_user in self.referrals.all():
                 referred_user.update_balance_and_referred_users()
+            
+    def calculate_referral_bonus(user):
+        """
+        Calculates and applies the referral bonus to the referrer of the given user, if applicable.
+        Assumes a 20% bonus of the daily revenue from the user's plan.
+        
+        Parameters:
+        - user (User): The user for whom to apply the referral bonus.
+        """
+        referral_bonus_percentage = Decimal(0.2)  # 20% bonus
 
-        except self.DoesNotExist:
-            raise ValueError("Active user plan not found.")
+        # Ensure the user has a referrer and an active plan
+        if user.referred_by and user.plan and not user.referred_by.processed_refereal:
+            referral_bonus = user.plan.daily_revenue * referral_bonus_percentage
+            user.referred_by.balance += referral_bonus
+            user.referred_by.processed_refereal = now()  # Update the referral processing time
+            user.referred_by.save()
     
 class PasswordResetTokenCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')

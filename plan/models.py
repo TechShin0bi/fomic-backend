@@ -32,17 +32,3 @@ class Plan(BaseModel):
         if referrer:
             referrer.balance += bonus  # Assuming `balance` is a DecimalField in User
             referrer.save()
-
-class UserPlan(BaseModel):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Use AUTH_USER_MODEL to point to your custom User model
-        on_delete=models.CASCADE,
-        related_name='user_plans'
-    )
-    plan = models.ForeignKey('Plan', on_delete=models.CASCADE)  # Assuming a Plan model exists
-    last_process = models.DateTimeField(auto_now=True)  # Track last processing date
-
-    is_active = models.BooleanField(default=True)  # Track validation status
-
-    def __str__(self):
-        return f"{self.user.name}'s {self.plan.name}"

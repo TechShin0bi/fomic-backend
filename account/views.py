@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from .models import Deposit, Withdrawal
 from .serializers import *
 from rest_framework.decorators import action
-from rest_framework.views import APIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework import generics, filters as rest_filters
 from django_filters import rest_framework as filters
@@ -21,9 +20,29 @@ class DepositViewSet(viewsets.ModelViewSet):
         data = request.data
         data['user'] = request.user.id
         serializer = self.get_serializer(data=data)
+        
+        # Check if the request data is valid
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Save the deposit
+            deposit = serializer.save()
+
+            # Check if this is the user's first deposit
+            user = request.user
+            is_first_deposit = not Deposit.objects.filter(user=user).exclude(id=deposit.id).exists()
+
+            # Check if the user was referred by someone
+            if is_first_deposit and user.referred_by:
+                # Calculate 20% of the deposit amount
+                referral_bonus = deposit.amount * Decimal(0.2)
+
+                # Update the referrer's balance
+                referrer = user.referred_by
+                referrer.balance += referral_bonus
+                referrer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def validate_deposit(self, request, pk=None):
         """Validate a deposit if the user is an admin."""
@@ -60,10 +79,10 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
         if amount is None:
             return Response({"error": "Amount is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # try:
-        #     amount = float(amount)
-        # except ValueError:
-        #     return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            amount = float(amount)
+        except ValueError:
+            return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check for sufficient balance
         if user.balance < amount:
@@ -174,7 +193,7 @@ class ValidateWithdrawalView(UpdateAPIView):
         withdrawal.save()
 
         return Response(WithdrawalSerializer(withdrawal).data)
-    
+
     
 class DepositListView(generics.ListAPIView):
     queryset = Deposit.objects.all().order_by('-created_at')

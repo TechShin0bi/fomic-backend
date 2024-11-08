@@ -1,82 +1,39 @@
-from rest_framework import generics, permissions,status
-from .models import Plan,UserPlan
+from rest_framework import generics, status
+from .models import Plan
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PlanSerializer,UserPlanSerializer
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .models import UserPlan
 from rest_framework.views import APIView
+from authentication.serializers import UserSerializer
+from . serializers import PlanSerializer
+from authentication.serializers import GetUserSerializer
 User = get_user_model()
 
 class PlanListCreateView(generics.ListCreateAPIView):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
-
-class UserPlanListCreateView(generics.ListCreateAPIView):
-    queryset = UserPlan.objects.all()
-    serializer_class = UserPlanSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Ensure the user is authenticated
-
-    # def perform_create(self, serializer):
-    #     # Automatically set the user to the authenticated user
-    #     serializer.save(user=self.request.user)
-
     def create(self, request, *args, **kwargs):
-        # Prepare the data and include the authenticated user's ID
-        data = request.data
-        data['user'] = request.user.id  # Use the user instance directly
+            data = request.data.copy()
+            user = request.user  # Authenticated user
+            if user.plan:
+                # If user already has a UserPlan, update it with the new plan
+                user.plan_id = data.get('plan')  # Expecting 'plan' to be in request data
+                user.save(update_fields=['plan'])
+            else:
+                # If no UserPlan exists, create a new one
+                data['user'] = user.id  # Associate the UserPlan with the authenticated user
+                serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                user = serializer.save()
 
-        # Delete any previous user plans for this user
-        UserPlan.objects.filter(user=request.user.id).delete()
+            # Update the `plan` field in the User model
+            user.plan = user.plan
+            user.save(update_fields=['plan'])  # Only update the `plan` field
 
-        # Initialize the serializer with the request data
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)  # Ensure the data is valid
+            # Return updated user data
+            response_data = UserSerializer(user).data  # Serializes complete user data, including plan details
 
-        # Save the new UserPlan and get the instance
-        user_plan = serializer.save()
-
-        # Fetch the associated Plan instance from the created UserPlan
-        plan = user_plan.plan  # Access the related plan object
-
-        # Serialize the response data (including UserPlan and Plan)
-        response_data = {
-            "user_plan": UserPlanSerializer(user_plan).data,
-            "plan": PlanSerializer(plan).data,  # Assuming you have a PlanSerializer
-        }
-
-        return Response(response_data, status=status.HTTP_201_CREATED)
-
-    
-class UserActivePlanView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        # Query the user's active plan through UserPlan model
-        active_plan = (
-            UserPlan.objects.filter(user=request.user,is_active=True)
-            .order_by("-updated_at")
-            .select_related('plan')  # Optimize query with related plan
-            .first()
-        )
-
-        if active_plan:
-            plan = active_plan.plan
-            data = {
-                "name": plan.name,
-                "price": float(plan.price),
-                "daily_revenue": float(plan.daily_revenue),
-                "duration": plan.duration,
-                "category": plan.get_category_display(),
-                "created_at": plan.created_at,
-                "updated_at": plan.updated_at,
-            }
-            return Response(data, status=status.HTTP_200_OK)
-
-        return Response(
-            {"detail": "No active plan found."}, status=status.HTTP_404_NOT_FOUND
-        )
-        
+            return Response(response_data)
 
         
 class UpdateUserPlanView(generics.GenericAPIView):
@@ -92,11 +49,7 @@ class UpdateUserPlanView(generics.GenericAPIView):
             # Call the method to update balance and referred users
             user.update_balance_and_referred_users()
 
-            return Response(
-                {
-                    "message": "User and referred users' plans updated successfully.",
-                    "new_balance": user.balance,
-                },
+            return Response(GetUserSerializer(user).data,
                 status=status.HTTP_200_OK,
             )
 

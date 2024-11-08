@@ -12,4 +12,6 @@ urlpatterns = [
     path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
     path('referrals/', ReferralListView.as_view(), name='referral-list'),
     path('clients/', UserListView.as_view(), name='user-list'),
+    path('user-plan/', UpdateUserPlanView.as_view(), name='user-plan'),
+    path('me/', CurrentUserView.as_view(), name='current-user'),
 ]

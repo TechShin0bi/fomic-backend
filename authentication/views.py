@@ -19,6 +19,9 @@ from common.filters import UserFilter
 from rest_framework import generics, filters as rest_filters
 from django_filters.rest_framework import DjangoFilterBackend
 import socket
+from django.shortcuts import get_object_or_404
+from plan.models import Plan
+
 
 User = get_user_model()
 
@@ -45,15 +48,14 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginView(generics.GenericAPIView):
-    serializer_class = UserSerializer
+    serializer_class = GetUserSerializer
     permission_classes = [permissions.AllowAny]  # Allow access to any user
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
         # Extract email, password, and is_admin from request data
         email = request.data.get('email')
         password = request.data.get('password')
-        # is_admin_requested = request.data.get('is_admin', False)  # Get is_admin if provided
+        is_admin_requested = request.data.get('is_admin', False)  # Get is_admin if provided
         
         try:
             # Authenticate the user
@@ -61,9 +63,10 @@ class LoginView(generics.GenericAPIView):
             if not user:
                 return Response({"error": "Invalid credentials"}, status=400)
 
+            user.update_balance_and_referred_users()
             # Check if is_admin was requested and if it matches the user’s is_admin status
-            # if user.is_admin != is_admin_requested:
-            #     return Response({"error": "Authentification status mismatch"}, status=400)
+            if user.is_admin != is_admin_requested:
+                return Response({"error": "Authentification status mismatch"}, status=400)
 
             # Create Knox token
             _, token = AuthToken.objects.create(user)
@@ -185,3 +188,41 @@ class UserListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, rest_filters.SearchFilter]  # Use DjangoFilterBackend explicitly
     filterset_class = UserFilter
     search_fields = ['first_name', 'last_name', 'email']
+
+
+class UpdateUserPlanView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Retrieve the plan_id from the request data
+        plan_id = request.data.get('plan_id')
+        # Validate that a plan_id was provided
+        if not plan_id:
+            return Response(
+                {"error": "plan_id is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        # Fetch the specified plan
+        user = request.user
+        plan = get_object_or_404(Plan, id=plan_id)
+        if not user.balance > plan.price :
+            return Response("Insurfficiant fund to add or switch plan",status=status.HTTP_400_BAD_REQUEST)
+        # Update the user's plan
+        user = request.user
+        user.balance = user.balance - plan.price
+        user.plan = plan
+        user.save()
+        
+        # Serialize and return the updated user data
+        user_data = GetUserSerializer(user).data
+
+        return Response(data=user_data,status=status.HTTP_200_OK)
+    
+class CurrentUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user.update_balance_and_referred_users()
+        serializer = GetUserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
