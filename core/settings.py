@@ -30,7 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '.vercel.app',
     '127.0.0.1',
-    "localhost"
+    "localhost",
+    "192.168.100.180"
 ]
 
 APP_NAME = "Fomic Winner"
@@ -188,6 +189,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://192.168.100.180:3000",
+    "http://192.168.100.180:8000",
     "https://fomic.vercel.app",
     "https://fomic-admin.vercel.app"
 ]

@@ -205,7 +205,7 @@ class UpdateUserPlanView(APIView):
         # Fetch the specified plan
         user = request.user
         plan = get_object_or_404(Plan, id=plan_id)
-        if not user.balance > plan.price :
+        if not user.balance >= plan.price  :
             return Response("Insurfficiant fund to add or switch plan",status=status.HTTP_400_BAD_REQUEST)
         # Update the user's plan
         user = request.user

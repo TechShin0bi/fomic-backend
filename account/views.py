@@ -10,6 +10,7 @@ from rest_framework import generics, filters as rest_filters
 from django_filters import rest_framework as filters
 from common.filters import DepositFilter , WithdrawalFilter
 from common.paginations import StandardResultsPagination
+from decimal import Decimal
 
 class DepositViewSet(viewsets.ModelViewSet):
     queryset = Deposit.objects.all()
@@ -91,12 +92,12 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
         # Proceed with withdrawal creation if balance is sufficient
         data['user'] = user.id
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        withdrawal = serializer.save()
+        if serializer.is_valid(raise_exception=True):
+            withdrawal = serializer.save()
 
-        # Deduct the amount from the user's balance
-        user.balance -= amount
-        user.save()
+            # Deduct the amount from the user's balance
+            # user.balance -= Decimal(amount)
+            # user.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
