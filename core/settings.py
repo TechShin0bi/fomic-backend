@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     '.vercel.app',
     '127.0.0.1',
     "localhost",
-    "192.168.100.180"
+    "192.168.100.180",
+    "192.168.100.130",
 ]
 
 APP_NAME = "Fomic Winner"
@@ -178,7 +179,7 @@ REST_FRAMEWORK = {
 REST_KNOX = {
     'TOKEN_TTL': timedelta(days=60),  # Set token expiration to 24 hours
     'AUTO_REFRESH': True,  # Optional: refresh token on every authenticated request
-    # 'USER_SERIALIZER': 'authentication.serializers.UserSerializer',  # Optional: custom user serializer
+    'USER_SERIALIZER': 'authentication.serializers.UserSerializer',  # Optional: custom user serializer
 
 }
 
@@ -189,8 +190,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3000",
     "http://localhost:3001",
-    "http://192.168.100.180:3000",
+    "http://192.168.100.180:3000", 
     "http://192.168.100.180:8000",
+    "http://192.168.100.130:8000",
+    "http://192.168.100.130:3000",
     "https://fomic.vercel.app",
     "https://fomic-admin.vercel.app"
 ]

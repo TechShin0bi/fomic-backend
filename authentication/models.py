@@ -60,7 +60,8 @@ class User(AbstractBaseUser, PermissionsMixin,BaseModel):
         - user (User): The user instance to update.
         """
         # Ensure the user has an active plan
-        if not self.plan:
+        if  self.plan:
+            print("plan in process")
             # Calculate the days passed since the last balance update
             last_processed_date = self.last_balance_processed.date() if self.last_balance_processed else now().date()
             days_passed = (now().date() - last_processed_date).days

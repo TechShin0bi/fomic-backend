@@ -10,6 +10,7 @@ from authentication.serializers import GetUserSerializer
 User = get_user_model()
 
 class PlanListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
     def create(self, request, *args, **kwargs):
@@ -37,14 +38,15 @@ class PlanListCreateView(generics.ListCreateAPIView):
 
         
 class UpdateUserPlanView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
     """
     View to calculate and update the user's balance based on the daily revenue and days passed.
     This also updates the plans of any referred users.
     """
-    def get(self, request, user_id):
+    def get(self, request):
         try:
             # Retrieve the user instance
-            user = User.objects.get(id=user_id)
+            user = request.user
 
             # Call the method to update balance and referred users
             user.update_balance_and_referred_users()

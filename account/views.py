@@ -11,6 +11,7 @@ from django_filters import rest_framework as filters
 from common.filters import DepositFilter , WithdrawalFilter
 from common.paginations import StandardResultsPagination
 from decimal import Decimal
+from django.utils import timezone
 
 class DepositViewSet(viewsets.ModelViewSet):
     queryset = Deposit.objects.all()
@@ -41,7 +42,7 @@ class DepositViewSet(viewsets.ModelViewSet):
                 referrer.balance += referral_bonus
                 referrer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -99,7 +100,7 @@ class WithdrawalViewSet(viewsets.ModelViewSet):
             # user.balance -= Decimal(amount)
             # user.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     
     @action(detail=False, methods=['get'], url_path='user-withdrawals')
@@ -151,6 +152,7 @@ class ValidateDepositView(UpdateAPIView):
         deposit.status = 'completed'
         user = deposit.user
         user.balance += deposit.amount
+        user.last_balance_processed = timezone.now()
         user.save()
         deposit.save()
 
