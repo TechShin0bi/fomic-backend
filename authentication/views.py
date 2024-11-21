@@ -21,6 +21,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 import socket
 from django.shortcuts import get_object_or_404
 from plan.models import Plan
+from rest_framework import status, mixins
+from rest_framework.generics import GenericAPIView
 
 
 User = get_user_model()
@@ -46,6 +48,7 @@ class RegisterView(generics.CreateAPIView):
         
         user.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class LoginView(generics.GenericAPIView):
     serializer_class = GetUserSerializer
@@ -226,3 +229,12 @@ class CurrentUserView(APIView):
         user.update_balance_and_referred_users()
         serializer = GetUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    
+class PartialUpdateUserView(mixins.UpdateModelMixin, GenericAPIView):
+    queryset = User.objects.all()
+    serializer_class = PartialUpdateUserSerializer
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

@@ -14,4 +14,6 @@ urlpatterns = [
     path('clients/', UserListView.as_view(), name='user-list'),
     path('user-plan/', UpdateUserPlanView.as_view(), name='user-plan'),
     path('me/', CurrentUserView.as_view(), name='current-user'),
+    
+    path('user/update/<uuid:pk>/', PartialUpdateUserView.as_view(), name='partial-update-user'),
 ]

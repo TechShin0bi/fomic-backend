@@ -35,3 +35,9 @@ class GetUserSerializer(serializers.ModelSerializer):
         withdrawals = obj.validated_withdrawals.order_by('-created_at')[:2]
         return self.WITHDRAWALSERIALIZER(withdrawals, many=True).data
 
+
+class PartialUpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone']  # specify fields for partial update
+        read_only_fields = ['id']

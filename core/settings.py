@@ -27,13 +27,6 @@ SECRET_KEY = 'django-insecure-i%z+5vjq!bb+c(9&pz+@ngs)g54pg)wo!fyb$l=xdo)vf^0p9=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '.vercel.app',
-    '127.0.0.1',
-    "localhost",
-    "192.168.100.180",
-    "192.168.100.130",
-]
 
 APP_NAME = "Fomic Winner"
 
@@ -185,6 +178,14 @@ REST_KNOX = {
 
 AUTH_USER_MODEL = 'authentication.User'
 
+ALLOWED_HOSTS = [
+    '.vercel.app',
+    '127.0.0.1',
+    "localhost",
+    "192.168.100.180",
+    "192.168.100.130",
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
@@ -197,6 +198,13 @@ CORS_ALLOWED_ORIGINS = [
     "https://fomic.vercel.app",
     "https://fomic-admin.vercel.app"
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS: True
+
+
+
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
