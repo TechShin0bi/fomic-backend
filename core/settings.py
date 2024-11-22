@@ -197,7 +197,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.100.130:8000",
     "http://192.168.100.130:3000",
     "https://fomic.vercel.app",
-    "https://fomic-admin.vercel.app"
+    "https://fomic-admin.vercel.app",
+    "https://fomic-admin-djtg.vercel.app"
 ]
 
 
