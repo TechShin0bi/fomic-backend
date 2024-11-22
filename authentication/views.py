@@ -23,6 +23,7 @@ from django.shortcuts import get_object_or_404
 from plan.models import Plan
 from rest_framework import status, mixins
 from rest_framework.generics import GenericAPIView
+from rest_framework.generics import RetrieveAPIView
 
 
 User = get_user_model()
@@ -232,9 +233,10 @@ class CurrentUserView(APIView):
     
     
     
-class PartialUpdateUserView(mixins.UpdateModelMixin, GenericAPIView):
+class PartialUpdateUserView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = PartialUpdateUserSerializer
 
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserDetailsSerializer

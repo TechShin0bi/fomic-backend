@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
      "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "authentication.middlewares.CheckActiveUserMiddleware"
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -94,31 +95,31 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'verceldb',
-        'USER': 'default',
-        'PASSWORD': 'XKqja8Uiz7cm',
-        'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-        #     'options': '-c statement_timeout=5000 -c idle_in_transaction_session_timeout=10000'
-        },
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'fomic',       # Database name
-#         'USER': 'pires',       # Database username
-#         'PASSWORD': 'death the kid 2',  # Database password
-#         'HOST': 'localhost',          # Database host, often 'localhost'
-#         'PORT': '5432',               # Default PostgreSQL port
+#         'NAME': 'verceldb',
+#         'USER': 'default',
+#         'PASSWORD': 'XKqja8Uiz7cm',
+#         'HOST': 'ep-dawn-block-a43uc4ml-pooler.us-east-1.aws.neon.tech',
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#         #     'options': '-c statement_timeout=5000 -c idle_in_transaction_session_timeout=10000'
+#         },
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fomic',       # Database name
+        'USER': 'pires',       # Database username
+        'PASSWORD': 'death the kid 2',  # Database password
+        'HOST': 'localhost',          # Database host, often 'localhost'
+        'PORT': '5432',               # Default PostgreSQL port
+    }
+}
 
 
 # Password validation

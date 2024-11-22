@@ -39,5 +39,16 @@ class GetUserSerializer(serializers.ModelSerializer):
 class PartialUpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone']  # specify fields for partial update
+        # fields = '__all__'
+        exclude = ['image','plan'] 
         read_only_fields = ['id']
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    from account.serializers import DepositSerializer , WithdrawalSerializer
+    from plan . serializers import PlanSerializer
+    deposits = DepositSerializer(many=True,read_only=True)
+    withdrawals = WithdrawalSerializer(many=True,read_only=True)
+    plan = PlanSerializer()
+    class Meta:
+        model = User
+        fields = '__all__'  # specify fields to include as needed
